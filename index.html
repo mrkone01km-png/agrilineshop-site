@@ -110,6 +110,16 @@ nav.tabs button.active{opacity:1;background:var(--gold);color:var(--forest-dark)
 .pwd-eye:hover{opacity:1;background:var(--paper-2);}
 .pwd-eye.static{position:static;transform:none;}
 
+.tel-wrap{display:flex;}
+.tel-prefix{background:var(--paper-2);border:1.5px solid var(--line);border-right:none;border-radius:8px 0 0 8px;padding:0 12px;font-size:14px;font-weight:700;color:var(--forest-dark);display:flex;align-items:center;white-space:nowrap;}
+.tel-wrap input{border-radius:0 8px 8px 0 !important;}
+
+.search-row{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;}
+.search-row input{flex:2;min-width:180px;}
+.search-row select{flex:1;min-width:140px;}
+.rate-stars{font-size:22px;letter-spacing:4px;margin-bottom:10px;cursor:pointer;color:var(--gold-dark);}
+.rate-stars span{cursor:pointer;}
+
 .img-drops{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:6px;}
 .img-drop{border:2px dashed var(--line);border-radius:10px;height:120px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;background:var(--sky);font-size:12.5px;text-align:center;color:var(--forest-dark);}
 .img-drop img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0;}
@@ -293,7 +303,40 @@ footer{text-align:center;padding:30px 0 10px;font-size:12px;opacity:0.55;}
         <h2>Créer un compte</h2>
         <div class="grid2">
           <div class="field"><label>Nom complet</label><input id="sign-nom" placeholder="Ex : Awa Koné"></div>
-          <div class="field"><label>Téléphone</label><input id="sign-tel" placeholder="Ex : 07 00 00 00 00"></div>
+          <div class="field">
+            <label>Pays</label>
+            <select id="sign-pays" onchange="updateSignPrefix()">
+              <option data-p="225" selected>Côte d'Ivoire</option>
+              <option data-p="221">Sénégal</option>
+              <option data-p="223">Mali</option>
+              <option data-p="226">Burkina Faso</option>
+              <option data-p="227">Niger</option>
+              <option data-p="228">Togo</option>
+              <option data-p="229">Bénin</option>
+              <option data-p="224">Guinée</option>
+              <option data-p="245">Guinée-Bissau</option>
+              <option data-p="233">Ghana</option>
+              <option data-p="234">Nigeria</option>
+              <option data-p="231">Liberia</option>
+              <option data-p="232">Sierra Leone</option>
+              <option data-p="220">Gambie</option>
+              <option data-p="238">Cap-Vert</option>
+              <option data-p="222">Mauritanie</option>
+              <option data-p="237">Cameroun</option>
+              <option data-p="241">Gabon</option>
+              <option data-p="242">Congo</option>
+              <option data-p="235">Tchad</option>
+              <option data-p="236">République Centrafricaine</option>
+              <option data-p="240">Guinée Équatoriale</option>
+            </select>
+          </div>
+        </div>
+        <div class="field">
+          <label>Téléphone</label>
+          <div class="tel-wrap">
+            <span class="tel-prefix" id="sign-tel-prefix">+225</span>
+            <input id="sign-tel" placeholder="07 00 00 00 00">
+          </div>
         </div>
         <div class="field"><label>Ville / localité</label><input id="sign-ville" placeholder="Ex : Bouaké"></div>
         <div class="field" id="field-culture"><label>Type de production</label><input id="sign-culture" placeholder="Ex : Tomates, maïs, cacao..."></div>
@@ -323,7 +366,7 @@ footer{text-align:center;padding:30px 0 10px;font-size:12px;opacity:0.55;}
 
     <div id="prod-content" style="display:none;">
       <div class="panel">
-        <h2>Publier un produit</h2>
+        <h2 id="prod-form-title">Publier un produit</h2>
         <div class="grid2">
           <div class="field"><label>Nom du produit</label><input id="p-nom" placeholder="Ex : Tomates fraîches"></div>
           <div class="field"><label>Prix pour une unité (FCFA)</label><input id="p-prix" type="number" placeholder="Ex : 500"></div>
@@ -331,7 +374,7 @@ footer{text-align:center;padding:30px 0 10px;font-size:12px;opacity:0.55;}
         <div class="grid2">
           <div class="field"><label>Quantité disponible (précise l'unité : kg, sac, tas...)</label><input id="p-qte" placeholder="Ex : 200 kg"></div>
           <div class="field"><label>Catégorie</label>
-            <select id="p-cat"><option>Légumes</option><option>Fruits</option><option>Céréales</option><option>Tubercules</option><option>Cacao / Café</option><option>Élevage</option></select>
+            <select id="p-cat"><option>Légumes</option><option>Fruits</option><option>Céréales</option><option>Tubercules</option><option>Élevage</option><option>Cacao</option><option>Café</option><option>Coton</option><option>Anacarde</option><option>Hévéa</option></select>
           </div>
         </div>
         <p class="hint" style="margin-top:-8px;">💡 Le prix correspond à <strong>une seule unité</strong> (le kg, le sac, le tas...) — précise laquelle dans "Quantité disponible". Exemple : Prix = 500, Quantité = "200 kg" → 500 FCFA le kilo, 200 kg en stock.</p>
@@ -342,7 +385,10 @@ footer{text-align:center;padding:30px 0 10px;font-size:12px;opacity:0.55;}
           <div class="img-drop" id="drop2"><span>+ Photo 2</span><input type="file" accept="image/*" onchange="handleImg(this,2)"></div>
         </div>
         <div class="hint warn" id="img-warn">Ajoutez au moins 2 photos pour pouvoir publier.</div>
-        <button class="btn btn-primary" id="btn-publish" disabled onclick="publishProduct()">Publier le produit</button>
+        <div style="display:flex;gap:10px;">
+          <button class="btn btn-primary" id="btn-publish" disabled onclick="publishProduct()">Publier le produit</button>
+          <button class="btn btn-ghost" id="btn-cancel-edit" style="display:none;" onclick="cancelEdit()">Annuler la modification</button>
+        </div>
       </div>
 
       <div class="panel">
@@ -363,6 +409,14 @@ footer{text-align:center;padding:30px 0 10px;font-size:12px;opacity:0.55;}
     <div id="ach-content" style="display:none;">
       <div class="panel">
         <h2>Produits disponibles</h2>
+        <div class="search-row">
+          <input id="search-q" placeholder="🔍 Rechercher un produit (ex : tomates, manioc...)" oninput="debouncedLoadMarket()">
+          <select id="search-cat" onchange="loadMarket()">
+            <option value="">Toutes catégories</option>
+            <option>Légumes</option><option>Fruits</option><option>Céréales</option><option>Tubercules</option><option>Élevage</option><option>Cacao</option><option>Café</option><option>Coton</option><option>Anacarde</option><option>Hévéa</option>
+          </select>
+          <input id="search-ville" placeholder="Ville du producteur" oninput="debouncedLoadMarket()">
+        </div>
         <div class="product-list" id="market-products"></div>
       </div>
     </div>
@@ -399,14 +453,38 @@ footer{text-align:center;padding:30px 0 10px;font-size:12px;opacity:0.55;}
       <div class="section-title">Prix du déblocage de contact</div>
       <div class="panel">
         <div class="grid2">
-          <div class="field"><label>Montant actuel (FCFA)</label><input id="admin-price" type="number" placeholder="300"></div>
+          <div class="field"><label>Montant standard (FCFA)</label><input id="admin-price" type="number" placeholder="300"></div>
         </div>
         <button class="btn btn-gold" onclick="savePrice()">Enregistrer le nouveau prix</button>
         <span id="price-msg" class="hint" style="display:inline-block;margin-left:10px;"></span>
       </div>
 
+      <div class="section-title">Prix spécifiques par culture de rente</div>
+      <div class="panel">
+        <p class="hint" style="margin-top:-6px;">Fixez un prix différent pour certaines cultures (cacao, café, coton, anacarde, hévéa...) — utile si un acheteur professionnel (ex : une entreprise de chocolaterie) doit payer plus qu'un simple particulier. Les catégories sans prix spécifique gardent le montant standard ci-dessus.</p>
+        <div class="grid2">
+          <div class="field">
+            <label>Culture</label>
+            <select id="cat-price-select">
+              <option>Cacao</option><option>Café</option><option>Coton</option><option>Anacarde</option><option>Hévéa</option>
+              <option>Légumes</option><option>Fruits</option><option>Céréales</option><option>Tubercules</option><option>Élevage</option>
+            </select>
+          </div>
+          <div class="field"><label>Prix pour cette culture (FCFA)</label><input id="cat-price-value" type="number" placeholder="Ex : 2000"></div>
+        </div>
+        <button class="btn btn-gold" onclick="saveCatPrice()">Enregistrer ce prix spécifique</button>
+        <span id="cat-price-msg" class="hint" style="display:inline-block;margin-left:10px;"></span>
+        <div class="table-wrap" style="margin-top:14px;">
+          <table>
+            <thead><tr><th>Culture</th><th>Prix spécifique</th><th></th></tr></thead>
+            <tbody id="admin-cat-prices"></tbody>
+          </table>
+        </div>
+      </div>
+
       <div class="section-title">Comptes créés</div>
       <div class="panel">
+        <input id="admin-search-comptes" placeholder="🔍 Rechercher un compte (nom, identifiant, ville...)" style="width:100%;padding:10px 12px;border-radius:8px;border:1.5px solid var(--line);background:var(--paper);font-size:14px;margin-bottom:12px;" oninput="renderComptesTable()">
         <p class="hint" style="margin-top:-6px;">Les mots de passe sont chiffrés et protégés — même l'administrateur ne peut pas les consulter en clair, c'est une bonne pratique de sécurité.</p>
         <div class="table-wrap">
           <table>
@@ -418,6 +496,7 @@ footer{text-align:center;padding:30px 0 10px;font-size:12px;opacity:0.55;}
 
       <div class="section-title">Producteurs inscrits</div>
       <div class="panel">
+        <input id="admin-search-producteurs" placeholder="🔍 Rechercher un producteur (nom, ville...)" style="width:100%;padding:10px 12px;border-radius:8px;border:1.5px solid var(--line);background:var(--paper);font-size:14px;margin-bottom:12px;" oninput="renderProducteursTable()">
         <div class="table-wrap">
           <table>
             <thead><tr><th>Nom</th><th>Localité</th><th>Note</th><th>Statut</th><th></th></tr></thead>
@@ -465,6 +544,9 @@ footer{text-align:center;padding:30px 0 10px;font-size:12px;opacity:0.55;}
   <div class="modal">
     <h3>Débloquer le contact</h3>
     <p style="font-size:13.5px;opacity:0.8;margin-top:-8px;">Montant à payer : <strong class="mono" id="modal-amount">300 FCFA</strong><br>Le contact reste visible <strong>5 minutes</strong>, puis se reverrouille.</p>
+    <div id="modal-guest-fields" style="display:none;">
+      <div class="field"><label>Votre nom</label><input id="guest-nom" placeholder="Ex : Jean Kouassi"></div>
+    </div>
     <div class="pay-methods">
       <button data-m="Wave" onclick="selMethod(this)">Wave</button>
       <button data-m="MTN Money" onclick="selMethod(this)">MTN Money</button>
@@ -569,6 +651,13 @@ function preRole(role) {
 }
 preRole('producteur');
 
+function updateSignPrefix() {
+  const sel = document.getElementById('sign-pays');
+  const prefix = sel.options[sel.selectedIndex].dataset.p;
+  document.getElementById('sign-tel-prefix').textContent = '+' + prefix;
+}
+updateSignPrefix();
+
 function setAuthMode(mode) {
   document.getElementById('mode-login').classList.toggle('active', mode === 'login');
   document.getElementById('mode-register').classList.toggle('active', mode === 'register');
@@ -634,7 +723,10 @@ function logoutUser() {
 
 async function createAccount() {
   const nom = document.getElementById('sign-nom').value.trim();
-  const tel = document.getElementById('sign-tel').value.trim();
+  const pays = document.getElementById('sign-pays').value;
+  const prefix = document.getElementById('sign-tel-prefix').textContent;
+  const telLocal = document.getElementById('sign-tel').value.trim();
+  const tel = telLocal ? (prefix + ' ' + telLocal) : '';
   const ville = document.getElementById('sign-ville').value.trim();
   const culture = document.getElementById('sign-culture').value.trim();
   const identifiant = document.getElementById('sign-id').value.trim();
@@ -654,7 +746,7 @@ async function createAccount() {
   try {
     const data = await apiFetch('/api/auth/register', {
       method: 'POST',
-      body: { role: currentSignRole, nom, telephone: tel, ville, culture, identifiant, mot_de_passe }
+      body: { role: currentSignRole, nom, telephone: tel, pays, ville, culture, identifiant, mot_de_passe }
     });
     session = { role: currentSignRole, account: data.utilisateur, token: data.token };
     saveSession();
@@ -716,6 +808,9 @@ function checkImgs() {
   document.getElementById('img-warn').style.display = ok ? 'none' : 'block';
 }
 
+let editingProductId = null;
+let myProductsCache = [];
+
 async function publishProduct() {
   const nom = document.getElementById('p-nom').value.trim() || "Produit sans nom";
   const prix = Number(document.getElementById('p-prix').value) || 0;
@@ -724,27 +819,65 @@ async function publishProduct() {
   const description = document.getElementById('p-desc').value;
 
   try {
-    await apiFetch('/api/produits', {
-      method: 'POST', token: session.token,
-      body: { nom, prix, categorie: cat, quantite: qte, description, image1: images[1], image2: images[2] }
-    });
-    images = { 1: null, 2: null };
-    document.getElementById('drop1').innerHTML = '<span>+ Photo 1</span><input type="file" accept="image/*" onchange="handleImg(this,1)">';
-    document.getElementById('drop2').innerHTML = '<span>+ Photo 2</span><input type="file" accept="image/*" onchange="handleImg(this,2)">';
-    document.getElementById('btn-publish').disabled = true;
-    document.getElementById('img-warn').style.display = 'block';
-    ['p-nom', 'p-prix', 'p-qte', 'p-desc'].forEach(id => document.getElementById(id).value = '');
-    toast("Produit publié avec ses 2 photos.");
+    if (editingProductId) {
+      const body = { nom, prix, categorie: cat, quantite: qte, description };
+      if (images[1]) body.image1 = images[1];
+      if (images[2]) body.image2 = images[2];
+      await apiFetch('/api/produits/' + editingProductId, { method: 'PUT', token: session.token, body });
+      toast("Produit mis à jour.");
+    } else {
+      if (!images[1] || !images[2]) { toast("Ajoutez 2 photos avant de publier."); return; }
+      await apiFetch('/api/produits', {
+        method: 'POST', token: session.token,
+        body: { nom, prix, categorie: cat, quantite: qte, description, image1: images[1], image2: images[2] }
+      });
+      toast("Produit publié avec ses 2 photos.");
+    }
+    resetProductForm();
     loadMyProducts();
   } catch (e) {
     toast(e.message);
   }
 }
 
+function resetProductForm() {
+  images = { 1: null, 2: null };
+  editingProductId = null;
+  document.getElementById('drop1').innerHTML = '<span>+ Photo 1</span><input type="file" accept="image/*" onchange="handleImg(this,1)">';
+  document.getElementById('drop2').innerHTML = '<span>+ Photo 2</span><input type="file" accept="image/*" onchange="handleImg(this,2)">';
+  document.getElementById('btn-publish').disabled = true;
+  document.getElementById('img-warn').style.display = 'block';
+  ['p-nom', 'p-prix', 'p-qte', 'p-desc'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('prod-form-title').textContent = 'Publier un produit';
+  document.getElementById('btn-publish').textContent = 'Publier le produit';
+  document.getElementById('btn-cancel-edit').style.display = 'none';
+}
+function cancelEdit() { resetProductForm(); }
+
+function editProduct(id) {
+  const p = myProductsCache.find(x => x.id === id);
+  if (!p) return;
+  editingProductId = id;
+  document.getElementById('p-nom').value = p.nom;
+  document.getElementById('p-prix').value = p.prix;
+  document.getElementById('p-qte').value = p.quantite || '';
+  document.getElementById('p-cat').value = p.categorie || 'Légumes';
+  document.getElementById('p-desc').value = p.description || '';
+  document.getElementById('drop1').innerHTML = '<img src="' + p.image1 + '">';
+  document.getElementById('drop2').innerHTML = '<img src="' + p.image2 + '">';
+  document.getElementById('btn-publish').disabled = false;
+  document.getElementById('img-warn').style.display = 'none';
+  document.getElementById('prod-form-title').textContent = 'Modifier ce produit';
+  document.getElementById('btn-publish').textContent = 'Enregistrer les modifications';
+  document.getElementById('btn-cancel-edit').style.display = 'inline-block';
+  document.getElementById('prod-content').scrollIntoView({ behavior: 'smooth' });
+}
+
 async function loadMyProducts() {
   const box = document.getElementById('my-products');
   try {
     const produits = await apiFetch('/api/produits/mes', { token: session.token });
+    myProductsCache = produits;
     if (!produits.length) { box.innerHTML = '<p class="hint">Aucun produit publié pour l\'instant.</p>'; return; }
     box.innerHTML = produits.map(p => `
       <div class="product-card">
@@ -752,7 +885,17 @@ async function loadMyProducts() {
         <div class="body">
           <h4>${p.nom}</h4>
           <div class="price">${Number(p.prix).toLocaleString('fr-FR')} FCFA</div>
-          <div class="meta">${p.categorie || ''} ${p.quantite ? '· ' + p.quantite : ''}</div>
+          <div class="meta">${p.categorie || ''}</div>
+          <div class="field" style="margin:10px 0 8px;">
+            <label>Stock disponible</label>
+            <input id="stock-${p.id}" value="${p.quantite || ''}" placeholder="Ex : 200 kg">
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <button class="btn btn-ghost small-btn" style="flex:1" onclick="updateStock(${p.id})">Mettre à jour le stock</button>
+            <button class="btn btn-ghost small-btn" onclick="editProduct(${p.id})">Modifier</button>
+            <button class="btn btn-outline-danger small-btn" onclick="deleteProduct(${p.id})">Supprimer</button>
+          </div>
+          <button class="btn btn-gold small-btn" style="width:100%;margin-top:8px;" onclick="copyShareLink(${p.id}, '${p.nom.replace(/'/g, "\\'")}')">📤 Copier le lien à partager (Facebook / TikTok)</button>
         </div>
       </div>`).join('');
   } catch (e) {
@@ -760,9 +903,43 @@ async function loadMyProducts() {
   }
 }
 
+function copyShareLink(id, nom) {
+  const lien = window.location.origin + window.location.pathname + '?produit=' + id;
+  const texte = `${nom} disponible maintenant sur AgriLineShop 🌾\nDécouvrez et débloquez le contact du vendeur ici :\n${lien}`;
+  navigator.clipboard.writeText(texte).then(() => {
+    toast("Texte + lien copiés — colle-les sur Facebook ou TikTok !");
+  }).catch(() => {
+    toast("Impossible de copier automatiquement, voici le lien : " + lien);
+  });
+}
+
+async function updateStock(id) {
+  const quantite = document.getElementById('stock-' + id).value.trim();
+  try {
+    await apiFetch('/api/produits/' + id, { method: 'PUT', token: session.token, body: { quantite } });
+    toast("Stock mis à jour.");
+  } catch (e) {
+    toast(e.message);
+  }
+}
+
+async function deleteProduct(id) {
+  if (!confirm("Supprimer définitivement ce produit ?")) return;
+  try {
+    await apiFetch('/api/produits/' + id, { method: 'DELETE', token: session.token });
+    toast("Produit supprimé.");
+    if (editingProductId === id) resetProductForm();
+    loadMyProducts();
+  } catch (e) {
+    toast(e.message);
+  }
+}
+
 /* --- Acheteur : marché + déblocage (protégé par connexion) --- */
+let guestMode = false;
+
 function renderAcheteurSpace() {
-  const locked = session.role !== 'acheteur';
+  const locked = session.role !== 'acheteur' && !guestMode;
   document.getElementById('ach-locked').style.display = locked ? 'block' : 'none';
   document.getElementById('ach-content').style.display = locked ? 'none' : 'block';
   if (!locked) loadMarket();
@@ -772,16 +949,29 @@ async function loadMarket() {
   const box = document.getElementById('market-products');
   box.innerHTML = '<p class="hint">Chargement du marché...</p>';
   try {
-    marketProducts = await apiFetch('/api/produits');
+    const q = document.getElementById('search-q').value.trim();
+    const cat = document.getElementById('search-cat').value;
+    const ville = document.getElementById('search-ville').value.trim();
+    const params = new URLSearchParams();
+    if (q) params.set('q', q);
+    if (cat) params.set('categorie', cat);
+    if (ville) params.set('ville', ville);
+    const qs = params.toString() ? '?' + params.toString() : '';
+    marketProducts = await apiFetch('/api/produits' + qs);
     drawMarket();
   } catch (e) {
     box.innerHTML = '<p class="hint warn">' + e.message + '</p>';
   }
 }
+let searchDebounce = null;
+function debouncedLoadMarket() {
+  clearTimeout(searchDebounce);
+  searchDebounce = setTimeout(loadMarket, 450);
+}
 
 function drawMarket() {
   const box = document.getElementById('market-products');
-  if (!marketProducts.length) { box.innerHTML = '<p class="hint">Aucun produit disponible pour le moment.</p>'; return; }
+  if (!marketProducts.length) { box.innerHTML = '<p class="hint">Aucun produit ne correspond à cette recherche.</p>'; return; }
   const now = Date.now();
   box.innerHTML = marketProducts.map(p => {
     const u = unlocks[p.id];
@@ -789,34 +979,58 @@ function drawMarket() {
     const imgsHtml = p.image1
       ? `<div><img src="${p.image1}" style="width:100%;height:100%;object-fit:cover"></div><div><img src="${p.image2 || p.image1}" style="width:100%;height:100%;object-fit:cover"></div>`
       : `<div>🥬</div><div>🍅</div>`;
+    const note = p.producteur_note ? `<span class="note-stars">★ ${p.producteur_note}</span>` : '';
     return `
     <div class="product-card">
       <div class="imgs">${imgsHtml}</div>
       <div class="body">
         <h4>${p.nom}</h4>
         <div class="price">${p.prix ? Number(p.prix).toLocaleString('fr-FR') + ' FCFA' : '—'}</div>
-        <div class="meta">${p.categorie || ''} · ${p.producteur}${p.quantite ? ' · ' + p.quantite + ' disponible(s)' : ''}</div>
+        <div class="meta">${p.categorie || ''} · ${p.producteur} ${note}${p.quantite ? ' · ' + p.quantite + ' disponible(s)' : ''}</div>
         ${isUnlocked
-          ? `<div class="contact-unlocked">📞 ${u.telephone}</div>`
+          ? `<div class="contact-unlocked">📞 ${u.telephone}</div>
+             <div class="hint" style="margin:6px 0 4px;">Noter ce vendeur (facultatif) :</div>
+             <div class="rate-stars" id="rate-${p.producteur_id}">
+               ${[1,2,3,4,5].map(n => `<span onclick="setRating(${p.producteur_id},${n})" id="star-${p.producteur_id}-${n}">☆</span>`).join('')}
+             </div>`
           : `<div class="contact-locked">Contact masqué</div>`}
         <button class="btn ${isUnlocked ? 'btn-ghost' : 'btn-gold'} small-btn" style="width:100%" ${isUnlocked ? 'disabled' : ''} onclick="openModal(${p.id})">
-          ${isUnlocked ? 'Contact débloqué ✓ (5 min)' : 'Débloquer le contact — ' + prixActuel.toLocaleString('fr-FR') + ' FCFA'}
+          ${isUnlocked ? 'Contact débloqué ✓ (5 min)' : 'Débloquer le contact — ' + Number(p.prix_deblocage_effectif || prixActuel).toLocaleString('fr-FR') + ' FCFA'}
         </button>
       </div>
     </div>`;
   }).join('');
 }
 
+async function setRating(producteurId, note) {
+  for (let n = 1; n <= 5; n++) {
+    document.getElementById(`star-${producteurId}-${n}`).textContent = n <= note ? '★' : '☆';
+  }
+  try {
+    await apiFetch('/api/producteurs/' + producteurId + '/avis', {
+      method: 'POST', token: session.token, body: { note }
+    });
+    toast("Merci pour votre note !");
+  } catch (e) {
+    toast(e.message);
+  }
+}
+
 function openModal(produitId) {
-  if (session.role !== 'acheteur') {
+  if (session.role !== 'acheteur' && !guestMode) {
     toast("Connectez-vous en tant qu'acheteur pour débloquer un contact.");
     showView('compte'); preRole('acheteur'); setAuthMode('login');
     return;
   }
   payTargetId = produitId;
   chosenMethod = null;
+  const produit = marketProducts.find(p => p.id === produitId);
+  const montant = produit ? Number(produit.prix_deblocage_effectif || prixActuel) : prixActuel;
+  document.getElementById('modal-amount').textContent = montant.toLocaleString('fr-FR') + " FCFA";
   document.querySelectorAll('.pay-methods button').forEach(b => b.classList.remove('sel'));
   document.getElementById('pay-num').value = '';
+  const needsGuestFields = session.role !== 'acheteur' && guestMode;
+  document.getElementById('modal-guest-fields').style.display = needsGuestFields ? 'block' : 'none';
   document.getElementById('pay-modal').classList.add('open');
 }
 function closeModal() { document.getElementById('pay-modal').classList.remove('open'); }
@@ -830,15 +1044,37 @@ async function confirmPay() {
   const numero = document.getElementById('pay-num').value.trim();
   if (!numero) { toast("Renseignez le numéro de paiement."); return; }
 
+  const estInvite = session.role !== 'acheteur' && guestMode;
+  if (estInvite && !document.getElementById('guest-nom').value.trim()) {
+    toast("Indiquez votre nom pour continuer.");
+    return;
+  }
+
   try {
     toast("Paiement en cours...");
-    const deb = await apiFetch('/api/produits/' + payTargetId + '/debloquer', {
-      method: 'POST', token: session.token, body: { methode: chosenMethod, numero_paiement: numero }
-    });
+    let deb, token;
+    if (estInvite) {
+      deb = await apiFetch('/api/produits/' + payTargetId + '/debloquer-invite', {
+        method: 'POST',
+        body: {
+          nom: document.getElementById('guest-nom').value.trim(),
+          telephone: numero,
+          methode: chosenMethod, numero_paiement: numero
+        }
+      });
+      token = deb.token;
+      session = { role: 'acheteur', account: { nom: document.getElementById('guest-nom').value.trim() }, token };
+      renderSessionBox();
+    } else {
+      deb = await apiFetch('/api/produits/' + payTargetId + '/debloquer', {
+        method: 'POST', token: session.token, body: { methode: chosenMethod, numero_paiement: numero }
+      });
+      token = session.token;
+    }
     // Simule la confirmation instantanée de l'opérateur mobile money (à remplacer
     // par leur vrai webhook une fois le contrat marchand signé).
     await apiFetch('/api/paiements/webhook', { method: 'POST', body: { reference: deb.reference, statut: 'paye' } });
-    const contact = await apiFetch('/api/produits/' + payTargetId + '/contact', { token: session.token });
+    const contact = await apiFetch('/api/produits/' + payTargetId + '/contact', { token });
 
     unlocks[payTargetId] = {
       telephone: contact.telephone,
@@ -879,6 +1115,9 @@ function adminLogout() {
   toast("Déconnecté de l'administration.");
 }
 
+let adminProducteursCache = [];
+let adminComptesCache = [];
+
 async function renderAdmin() {
   try {
     const stats = await apiFetch('/api/admin/stats', { token: adminToken });
@@ -896,27 +1135,13 @@ async function renderAdmin() {
   }
 
   try {
-    const producteurs = await apiFetch('/api/admin/producteurs', { token: adminToken });
-    document.getElementById('admin-producers').innerHTML = producteurs.map(p => `
-      <tr>
-        <td>${p.nom}</td>
-        <td>${p.ville || '—'}</td>
-        <td class="note-stars">★ ${p.note}</td>
-        <td><span class="pill ${p.statut === 'actif' ? 'ok' : 'susp'}">${p.statut === 'actif' ? 'Actif' : 'Suspendu'}</span></td>
-        <td><button class="btn ${p.statut === 'actif' ? 'btn-outline-danger' : 'btn-primary'} small-btn" onclick="toggleSuspend(${p.id}, '${p.statut}')">${p.statut === 'actif' ? 'Suspendre' : 'Réactiver'}</button></td>
-      </tr>`).join('');
+    adminProducteursCache = await apiFetch('/api/admin/producteurs', { token: adminToken });
+    renderProducteursTable();
   } catch (e) { /* déjà signalé au-dessus si jeton invalide */ }
 
   try {
-    const comptes = await apiFetch('/api/admin/comptes', { token: adminToken });
-    document.getElementById('admin-comptes').innerHTML = comptes.map(c => `
-      <tr>
-        <td>${c.nom}</td>
-        <td>${c.role === 'producteur' ? 'Producteur' : 'Acheteur'}</td>
-        <td class="mono">${c.identifiant}</td>
-        <td>${c.ville || '—'}</td>
-        <td><span class="pill ${c.statut === 'actif' ? 'ok' : 'susp'}">${c.statut === 'actif' ? 'Actif' : 'Suspendu'}</span></td>
-      </tr>`).join('');
+    adminComptesCache = await apiFetch('/api/admin/comptes', { token: adminToken });
+    renderComptesTable();
   } catch (e) { /* silencieux */ }
 
   try {
@@ -926,6 +1151,78 @@ async function renderAdmin() {
     document.getElementById('pay-orange').value = pay.orange_numero || '';
     document.getElementById('pay-moov').value = pay.moov_numero || '';
   } catch (e) { /* silencieux */ }
+
+  loadCatPrices();
+}
+
+function renderProducteursTable() {
+  const q = document.getElementById('admin-search-producteurs').value.trim().toLowerCase();
+  const filtered = adminProducteursCache.filter(p =>
+    !q || p.nom.toLowerCase().includes(q) || (p.ville || '').toLowerCase().includes(q)
+  );
+  document.getElementById('admin-producers').innerHTML = filtered.map(p => `
+    <tr>
+      <td>${p.nom}</td>
+      <td>${p.ville || '—'}</td>
+      <td class="note-stars">★ ${p.note}</td>
+      <td><span class="pill ${p.statut === 'actif' ? 'ok' : 'susp'}">${p.statut === 'actif' ? 'Actif' : 'Suspendu'}</span></td>
+      <td><button class="btn ${p.statut === 'actif' ? 'btn-outline-danger' : 'btn-primary'} small-btn" onclick="toggleSuspend(${p.id}, '${p.statut}')">${p.statut === 'actif' ? 'Suspendre' : 'Réactiver'}</button></td>
+    </tr>`).join('') || '<tr><td colspan="5" class="hint">Aucun résultat.</td></tr>';
+}
+
+function renderComptesTable() {
+  const q = document.getElementById('admin-search-comptes').value.trim().toLowerCase();
+  const filtered = adminComptesCache.filter(c =>
+    !q || c.nom.toLowerCase().includes(q) || c.identifiant.toLowerCase().includes(q) || (c.ville || '').toLowerCase().includes(q)
+  );
+  document.getElementById('admin-comptes').innerHTML = filtered.map(c => `
+    <tr>
+      <td>${c.nom}</td>
+      <td>${c.role === 'producteur' ? 'Producteur' : 'Acheteur'}</td>
+      <td class="mono">${c.identifiant}</td>
+      <td>${c.ville || '—'}</td>
+      <td><span class="pill ${c.statut === 'actif' ? 'ok' : 'susp'}">${c.statut === 'actif' ? 'Actif' : 'Suspendu'}</span></td>
+    </tr>`).join('') || '<tr><td colspan="5" class="hint">Aucun résultat.</td></tr>';
+}
+
+async function loadCatPrices() {
+  try {
+    const prices = await apiFetch('/api/admin/prix-categories', { token: adminToken });
+    document.getElementById('admin-cat-prices').innerHTML = prices.length
+      ? prices.map(p => `
+        <tr>
+          <td>${p.categorie}</td>
+          <td>${Number(p.prix).toLocaleString('fr-FR')} FCFA</td>
+          <td><button class="btn btn-outline-danger small-btn" onclick="removeCatPrice('${p.categorie}')">Retirer</button></td>
+        </tr>`).join('')
+      : '<tr><td colspan="3" class="hint">Aucun prix spécifique défini — toutes les cultures utilisent le prix standard.</td></tr>';
+  } catch (e) { /* silencieux */ }
+}
+
+async function saveCatPrice() {
+  const categorie = document.getElementById('cat-price-select').value;
+  const prix = Number(document.getElementById('cat-price-value').value);
+  const msg = document.getElementById('cat-price-msg');
+  if (!prix || prix <= 0) { msg.textContent = "Entrez un montant valide."; return; }
+  try {
+    await apiFetch('/api/admin/prix-categories', { method: 'PUT', token: adminToken, body: { categorie, prix } });
+    msg.textContent = "Prix enregistré pour " + categorie + ".";
+    document.getElementById('cat-price-value').value = '';
+    setTimeout(() => msg.textContent = '', 2500);
+    loadCatPrices();
+  } catch (e) {
+    msg.textContent = e.message;
+  }
+}
+
+async function removeCatPrice(categorie) {
+  try {
+    await apiFetch('/api/admin/prix-categories/' + encodeURIComponent(categorie), { method: 'DELETE', token: adminToken });
+    toast(categorie + " revient au prix standard.");
+    loadCatPrices();
+  } catch (e) {
+    toast(e.message);
+  }
 }
 
 async function toggleSuspend(userId, statutActuel) {
@@ -1078,6 +1375,14 @@ function sendChatMessage() {
     addChatMsg('bot', "Je ne suis pas sûr de comprendre 🤔 Voici les questions auxquelles je sais répondre :");
   }
   showChatQuestions();
+}
+
+/* --- Lien direct depuis les réseaux sociaux (Facebook / TikTok) --- */
+const urlParams = new URLSearchParams(window.location.search);
+const produitCible = urlParams.get('produit');
+if (produitCible) {
+  guestMode = true;
+  showView('acheteur');
 }
 </script>
 </body>
