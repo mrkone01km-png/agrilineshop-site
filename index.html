@@ -461,22 +461,16 @@ footer{text-align:center;padding:30px 0 10px;font-size:12px;opacity:0.55;}
 
       <div class="section-title">Prix spécifiques par culture de rente</div>
       <div class="panel">
-        <p class="hint" style="margin-top:-6px;">Fixez un prix différent pour certaines cultures (cacao, café, coton, anacarde, hévéa...) — utile si un acheteur professionnel (ex : une entreprise de chocolaterie) doit payer plus qu'un simple particulier. Les catégories sans prix spécifique gardent le montant standard ci-dessus.</p>
+        <p class="hint" style="margin-top:-6px;">Coche une ou plusieurs cultures, indique un prix, puis clique "Appliquer" pour leur donner ce prix spécifique. Décoche une culture déjà cochée puis clique de nouveau "Appliquer" pour la faire revenir au prix standard.</p>
+        <div id="cat-price-checks" style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:14px;"></div>
         <div class="grid2">
-          <div class="field">
-            <label>Culture</label>
-            <select id="cat-price-select">
-              <option>Cacao</option><option>Café</option><option>Coton</option><option>Anacarde</option><option>Hévéa</option>
-              <option>Légumes</option><option>Fruits</option><option>Céréales</option><option>Tubercules</option><option>Élevage</option>
-            </select>
-          </div>
-          <div class="field"><label>Prix pour cette culture (FCFA)</label><input id="cat-price-value" type="number" placeholder="Ex : 2000"></div>
+          <div class="field"><label>Prix à appliquer aux cultures cochées (FCFA)</label><input id="cat-price-value" type="number" placeholder="Ex : 2000"></div>
         </div>
-        <button class="btn btn-gold" onclick="saveCatPrice()">Enregistrer ce prix spécifique</button>
+        <button class="btn btn-gold" onclick="applyCatPrices()">Appliquer</button>
         <span id="cat-price-msg" class="hint" style="display:inline-block;margin-left:10px;"></span>
         <div class="table-wrap" style="margin-top:14px;">
           <table>
-            <thead><tr><th>Culture</th><th>Prix spécifique</th><th></th></tr></thead>
+            <thead><tr><th>Culture</th><th>Prix spécifique actuel</th></tr></thead>
             <tbody id="admin-cat-prices"></tbody>
           </table>
         </div>
@@ -1185,43 +1179,68 @@ function renderComptesTable() {
     </tr>`).join('') || '<tr><td colspan="5" class="hint">Aucun résultat.</td></tr>';
 }
 
+const TOUTES_CATEGORIES = ['Cacao', 'Café', 'Coton', 'Anacarde', 'Hévéa', 'Légumes', 'Fruits', 'Céréales', 'Tubercules', 'Élevage'];
+let catPricesCache = [];
+
 async function loadCatPrices() {
   try {
-    const prices = await apiFetch('/api/admin/prix-categories', { token: adminToken });
-    document.getElementById('admin-cat-prices').innerHTML = prices.length
-      ? prices.map(p => `
-        <tr>
-          <td>${p.categorie}</td>
-          <td>${Number(p.prix).toLocaleString('fr-FR')} FCFA</td>
-          <td><button class="btn btn-outline-danger small-btn" onclick="removeCatPrice('${p.categorie}')">Retirer</button></td>
-        </tr>`).join('')
-      : '<tr><td colspan="3" class="hint">Aucun prix spécifique défini — toutes les cultures utilisent le prix standard.</td></tr>';
+    catPricesCache = await apiFetch('/api/admin/prix-categories', { token: adminToken });
+    renderCatChecks();
+    renderCatPricesTable();
   } catch (e) { /* silencieux */ }
 }
 
-async function saveCatPrice() {
-  const categorie = document.getElementById('cat-price-select').value;
-  const prix = Number(document.getElementById('cat-price-value').value);
+function renderCatChecks() {
+  const customSet = new Set(catPricesCache.map(p => p.categorie));
+  document.getElementById('cat-price-checks').innerHTML = TOUTES_CATEGORIES.map(cat => `
+    <label style="display:flex;align-items:center;gap:6px;background:var(--sky);border:1px solid var(--line);border-radius:8px;padding:7px 12px;font-size:13.5px;cursor:pointer;">
+      <input type="checkbox" class="cat-check" value="${cat}" ${customSet.has(cat) ? 'checked' : ''}> ${cat}
+    </label>`).join('');
+}
+
+function renderCatPricesTable() {
+  document.getElementById('admin-cat-prices').innerHTML = catPricesCache.length
+    ? catPricesCache.map(p => `
+      <tr>
+        <td>${p.categorie}</td>
+        <td>${Number(p.prix).toLocaleString('fr-FR')} FCFA</td>
+      </tr>`).join('')
+    : '<tr><td colspan="2" class="hint">Aucun prix spécifique défini — toutes les cultures utilisent le prix standard.</td></tr>';
+}
+
+async function applyCatPrices() {
   const msg = document.getElementById('cat-price-msg');
-  if (!prix || prix <= 0) { msg.textContent = "Entrez un montant valide."; return; }
+  const prixInput = document.getElementById('cat-price-value').value;
+  const prix = Number(prixInput);
+  const prixValide = prixInput !== '' && prix > 0;
+  const checks = Array.from(document.querySelectorAll('.cat-check'));
+  const cochees = checks.filter(c => c.checked).map(c => c.value);
+  const decochees = checks.filter(c => !c.checked).map(c => c.value);
+  const etaientPersonnalisees = new Set(catPricesCache.map(p => p.categorie));
+  const nouvelles = cochees.filter(c => !etaientPersonnalisees.has(c));
+
+  if (nouvelles.length && !prixValide) {
+    msg.textContent = "Entrez un montant pour les nouvelles cultures cochées : " + nouvelles.join(', ');
+    return;
+  }
+
   try {
-    await apiFetch('/api/admin/prix-categories', { method: 'PUT', token: adminToken, body: { categorie, prix } });
-    msg.textContent = "Prix enregistré pour " + categorie + ".";
+    if (prixValide) {
+      for (const cat of cochees) {
+        await apiFetch('/api/admin/prix-categories', { method: 'PUT', token: adminToken, body: { categorie: cat, prix } });
+      }
+    }
+    for (const cat of decochees) {
+      if (etaientPersonnalisees.has(cat)) {
+        await apiFetch('/api/admin/prix-categories/' + encodeURIComponent(cat), { method: 'DELETE', token: adminToken });
+      }
+    }
+    msg.textContent = "Prix mis à jour.";
     document.getElementById('cat-price-value').value = '';
     setTimeout(() => msg.textContent = '', 2500);
     loadCatPrices();
   } catch (e) {
     msg.textContent = e.message;
-  }
-}
-
-async function removeCatPrice(categorie) {
-  try {
-    await apiFetch('/api/admin/prix-categories/' + encodeURIComponent(categorie), { method: 'DELETE', token: adminToken });
-    toast(categorie + " revient au prix standard.");
-    loadCatPrices();
-  } catch (e) {
-    toast(e.message);
   }
 }
 
