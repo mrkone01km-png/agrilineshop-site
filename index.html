@@ -350,6 +350,7 @@ footer{text-align:center;padding:30px 0 10px;font-size:12px;opacity:0.55;}
             </div>
           </div>
         </div>
+        <div class="field"><label>Code agent (facultatif — si un agent de terrain vous inscrit)</label><input id="sign-agent-code" placeholder="Ex : AGT-1A2B3C"></div>
         <button class="btn btn-primary" style="width:100%" onclick="createAccount()">Créer mon compte</button>
         <div id="sign-msg" class="hint"></div>
       </div>
@@ -374,7 +375,10 @@ footer{text-align:center;padding:30px 0 10px;font-size:12px;opacity:0.55;}
         <div class="grid2">
           <div class="field"><label>Quantité disponible (précise l'unité : kg, sac, tas...)</label><input id="p-qte" placeholder="Ex : 200 kg"></div>
           <div class="field"><label>Catégorie</label>
-            <select id="p-cat"><option>Légumes</option><option>Fruits</option><option>Céréales</option><option>Tubercules</option><option>Élevage</option><option>Cacao</option><option>Café</option><option>Coton</option><option>Anacarde</option><option>Hévéa</option></select>
+            <input id="p-cat" list="cat-suggestions" placeholder="Ex : Igname, Tomates, Cacao...">
+            <datalist id="cat-suggestions">
+              <option>Légumes</option><option>Fruits</option><option>Céréales</option><option>Tubercules</option><option>Igname</option><option>Patate douce</option><option>Manioc</option><option>Élevage</option><option>Cacao</option><option>Café</option><option>Coton</option><option>Anacarde</option><option>Hévéa</option>
+            </datalist>
           </div>
         </div>
         <p class="hint" style="margin-top:-8px;">💡 Le prix correspond à <strong>une seule unité</strong> (le kg, le sac, le tas...) — précise laquelle dans "Quantité disponible". Exemple : Prix = 500, Quantité = "200 kg" → 500 FCFA le kilo, 200 kg en stock.</p>
@@ -450,6 +454,16 @@ footer{text-align:center;padding:30px 0 10px;font-size:12px;opacity:0.55;}
         <div class="stat-card"><div class="n" id="ad-s-revenus">0 F</div><div class="l">Revenus totaux</div></div>
       </div>
 
+      <div class="section-title">Revenus par pays</div>
+      <div class="panel">
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Pays</th><th>Déblocages</th><th>Revenu</th></tr></thead>
+            <tbody id="admin-revenus-pays"></tbody>
+          </table>
+        </div>
+      </div>
+
       <div class="section-title">Prix du déblocage de contact</div>
       <div class="panel">
         <div class="grid2">
@@ -461,7 +475,11 @@ footer{text-align:center;padding:30px 0 10px;font-size:12px;opacity:0.55;}
 
       <div class="section-title">Prix spécifiques par culture de rente</div>
       <div class="panel">
-        <p class="hint" style="margin-top:-6px;">Coche une ou plusieurs cultures, indique un prix, puis clique "Appliquer" pour leur donner ce prix spécifique. Décoche une culture déjà cochée puis clique de nouveau "Appliquer" pour la faire revenir au prix standard.</p>
+        <p class="hint" style="margin-top:-6px;">Ajoute n'importe quelle culture (igname, un produit signalé comme culture de rente, etc.), coche celles concernées, indique un prix et clique "Appliquer". Décoche pour revenir au prix standard, ou retire complètement une culture de la liste avec le ×.</p>
+        <div class="grid2" style="margin-bottom:12px;">
+          <div class="field"><label>Ajouter une culture à la liste</label><input id="new-cat-name" placeholder="Ex : Igname"></div>
+          <div class="field" style="display:flex;align-items:flex-end;"><button class="btn btn-ghost" style="width:100%" onclick="addCatOption()">+ Ajouter à la liste</button></div>
+        </div>
         <div id="cat-price-checks" style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:14px;"></div>
         <div class="grid2">
           <div class="field"><label>Prix à appliquer aux cultures cochées (FCFA)</label><input id="cat-price-value" type="number" placeholder="Ex : 2000"></div>
@@ -472,6 +490,23 @@ footer{text-align:center;padding:30px 0 10px;font-size:12px;opacity:0.55;}
           <table>
             <thead><tr><th>Culture</th><th>Prix spécifique actuel</th></tr></thead>
             <tbody id="admin-cat-prices"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="section-title">Agents de terrain (commission 10%)</div>
+      <div class="panel">
+        <p class="hint" style="margin-top:-6px;">Crée un agent, donne-lui le code généré. Chaque producteur ou acheteur qu'il inscrit avec ce code (champ "Code agent" à l'inscription) est rattaché à lui — il touche 10% des revenus générés par ces comptes.</p>
+        <div class="grid2">
+          <div class="field"><label>Nom de l'agent</label><input id="new-agent-nom" placeholder="Ex : Ibrahim Coulibaly"></div>
+          <div class="field"><label>Téléphone (facultatif)</label><input id="new-agent-tel" placeholder="07 00 00 00 00"></div>
+        </div>
+        <button class="btn btn-gold" onclick="createAgent()">Créer cet agent</button>
+        <span id="agent-msg" class="hint" style="display:inline-block;margin-left:10px;"></span>
+        <div class="table-wrap" style="margin-top:14px;">
+          <table>
+            <thead><tr><th>Agent</th><th>Code</th><th>Comptes</th><th>Revenu généré</th><th>Commission (10%)</th><th>Déjà payé</th><th>Reste à payer</th><th></th></tr></thead>
+            <tbody id="admin-agents"></tbody>
           </table>
         </div>
       </div>
@@ -725,6 +760,7 @@ async function createAccount() {
   const culture = document.getElementById('sign-culture').value.trim();
   const identifiant = document.getElementById('sign-id').value.trim();
   const mot_de_passe = document.getElementById('sign-pwd').value;
+  const code_agent = document.getElementById('sign-agent-code').value.trim();
   const msg = document.getElementById('sign-msg');
 
   if (!nom || !identifiant || !mot_de_passe) {
@@ -740,7 +776,7 @@ async function createAccount() {
   try {
     const data = await apiFetch('/api/auth/register', {
       method: 'POST',
-      body: { role: currentSignRole, nom, telephone: tel, pays, ville, culture, identifiant, mot_de_passe }
+      body: { role: currentSignRole, nom, telephone: tel, pays, ville, culture, identifiant, mot_de_passe, code_agent }
     });
     session = { role: currentSignRole, account: data.utilisateur, token: data.token };
     saveSession();
@@ -1147,6 +1183,67 @@ async function renderAdmin() {
   } catch (e) { /* silencieux */ }
 
   loadCatPrices();
+  loadRevenusPays();
+  loadAgents();
+}
+
+async function loadRevenusPays() {
+  try {
+    const rows = await apiFetch('/api/admin/revenus-par-pays', { token: adminToken });
+    document.getElementById('admin-revenus-pays').innerHTML = rows.length
+      ? rows.map(r => `
+        <tr>
+          <td>${r.pays}</td>
+          <td>${r.nb_deblocages}</td>
+          <td>${Number(r.revenu).toLocaleString('fr-FR')} FCFA</td>
+        </tr>`).join('')
+      : '<tr><td colspan="3" class="hint">Aucun déblocage payé pour l\'instant.</td></tr>';
+  } catch (e) { /* silencieux */ }
+}
+
+async function createAgent() {
+  const nom = document.getElementById('new-agent-nom').value.trim();
+  const telephone = document.getElementById('new-agent-tel').value.trim();
+  const msg = document.getElementById('agent-msg');
+  if (!nom) { msg.textContent = "Le nom de l'agent est requis."; return; }
+  try {
+    const data = await apiFetch('/api/admin/agents', { method: 'POST', token: adminToken, body: { nom, telephone } });
+    msg.textContent = "Agent créé — code à lui donner : " + data.code;
+    document.getElementById('new-agent-nom').value = '';
+    document.getElementById('new-agent-tel').value = '';
+    loadAgents();
+  } catch (e) {
+    msg.textContent = e.message;
+  }
+}
+
+async function loadAgents() {
+  try {
+    const agents = await apiFetch('/api/admin/agents', { token: adminToken });
+    document.getElementById('admin-agents').innerHTML = agents.length
+      ? agents.map(a => `
+        <tr>
+          <td>${a.nom}</td>
+          <td class="mono">${a.code}</td>
+          <td>${a.nb_producteurs} prod. / ${a.nb_acheteurs} ach.</td>
+          <td>${Number(a.revenu_genere).toLocaleString('fr-FR')} FCFA</td>
+          <td>${Number(a.commission_totale).toLocaleString('fr-FR')} FCFA</td>
+          <td>${Number(a.total_paye).toLocaleString('fr-FR')} FCFA</td>
+          <td><strong>${Number(a.reste_a_payer).toLocaleString('fr-FR')} FCFA</strong></td>
+          <td><button class="btn btn-gold small-btn" ${a.reste_a_payer <= 0 ? 'disabled' : ''} onclick="payerAgent(${a.id})">Payer</button></td>
+        </tr>`).join('')
+      : '<tr><td colspan="8" class="hint">Aucun agent créé pour l\'instant.</td></tr>';
+  } catch (e) { /* silencieux */ }
+}
+
+async function payerAgent(id) {
+  try {
+    const res = await apiFetch('/api/admin/agents/' + id + '/payer', { method: 'POST', token: adminToken });
+    toast("Paiement de " + res.montant_paye.toLocaleString('fr-FR') + " FCFA enregistré.");
+    loadAgents();
+  } catch (e) {
+    toast(e.message);
+  }
 }
 
 function renderProducteursTable() {
@@ -1179,7 +1276,35 @@ function renderComptesTable() {
     </tr>`).join('') || '<tr><td colspan="5" class="hint">Aucun résultat.</td></tr>';
 }
 
-const TOUTES_CATEGORIES = ['Cacao', 'Café', 'Coton', 'Anacarde', 'Hévéa', 'Légumes', 'Fruits', 'Céréales', 'Tubercules', 'Élevage'];
+let TOUTES_CATEGORIES = ['Cacao', 'Café', 'Coton', 'Anacarde', 'Hévéa', 'Légumes', 'Fruits', 'Céréales', 'Tubercules', 'Élevage'];
+try {
+  const savedCats = JSON.parse(localStorage.getItem('agl_custom_cats') || '[]');
+  savedCats.forEach(c => { if (!TOUTES_CATEGORIES.includes(c)) TOUTES_CATEGORIES.push(c); });
+} catch (e) { /* stockage indisponible */ }
+function persistCustomCats() {
+  try { localStorage.setItem('agl_custom_cats', JSON.stringify(TOUTES_CATEGORIES)); } catch (e) {}
+}
+function addCatOption() {
+  const name = document.getElementById('new-cat-name').value.trim();
+  if (!name) { toast("Entrez un nom de culture."); return; }
+  if (!TOUTES_CATEGORIES.includes(name)) {
+    TOUTES_CATEGORIES.push(name);
+    persistCustomCats();
+  }
+  document.getElementById('new-cat-name').value = '';
+  renderCatChecks();
+  toast(name + " ajouté à la liste — coche-la puis indique un prix.");
+}
+function removeCatOption(cat) {
+  TOUTES_CATEGORIES = TOUTES_CATEGORIES.filter(c => c !== cat);
+  persistCustomCats();
+  if (catPricesCache.some(p => p.categorie === cat)) {
+    apiFetch('/api/admin/prix-categories/' + encodeURIComponent(cat), { method: 'DELETE', token: adminToken })
+      .then(() => loadCatPrices()).catch(e => toast(e.message));
+  } else {
+    renderCatChecks();
+  }
+}
 let catPricesCache = [];
 
 async function loadCatPrices() {
@@ -1191,11 +1316,15 @@ async function loadCatPrices() {
 }
 
 function renderCatChecks() {
+  catPricesCache.forEach(p => { if (!TOUTES_CATEGORIES.includes(p.categorie)) TOUTES_CATEGORIES.push(p.categorie); });
   const customSet = new Set(catPricesCache.map(p => p.categorie));
   document.getElementById('cat-price-checks').innerHTML = TOUTES_CATEGORIES.map(cat => `
-    <label style="display:flex;align-items:center;gap:6px;background:var(--sky);border:1px solid var(--line);border-radius:8px;padding:7px 12px;font-size:13.5px;cursor:pointer;">
-      <input type="checkbox" class="cat-check" value="${cat}" ${customSet.has(cat) ? 'checked' : ''}> ${cat}
-    </label>`).join('');
+    <span style="display:flex;align-items:center;gap:6px;background:var(--sky);border:1px solid var(--line);border-radius:8px;padding:7px 8px 7px 12px;font-size:13.5px;">
+      <label style="display:flex;align-items:center;gap:6px;cursor:pointer;">
+        <input type="checkbox" class="cat-check" value="${cat}" ${customSet.has(cat) ? 'checked' : ''}> ${cat}
+      </label>
+      <button type="button" onclick="removeCatOption('${cat.replace(/'/g, "\\'")}')" title="Retirer cette culture de la liste" style="background:none;border:none;color:var(--hibiscus);font-weight:700;cursor:pointer;padding:0 2px;font-size:15px;">×</button>
+    </span>`).join('');
 }
 
 function renderCatPricesTable() {
