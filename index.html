@@ -10,6 +10,8 @@
 <link rel="apple-touch-icon" href="./icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,500;0,700;1,500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
 :root{
   --forest:#1E5A45;
@@ -452,6 +454,19 @@ footer{text-align:center;padding:30px 0 10px;font-size:12px;opacity:0.55;}
         <div class="stat-card"><div class="n" id="ad-s-visites">0</div><div class="l">Visites</div></div>
         <div class="stat-card"><div class="n" id="ad-s-deblocages">0</div><div class="l">Déblocages</div></div>
         <div class="stat-card"><div class="n" id="ad-s-revenus">0 F</div><div class="l">Revenus totaux</div></div>
+      </div>
+
+      <div class="section-title">Carte des lieux d'enregistrement</div>
+      <div class="panel">
+        <p class="hint" style="margin-top:-6px;">Visible uniquement ici, sur ta page admin.</p>
+        <div class="role-toggle" style="max-width:420px;">
+          <button class="map-filter-btn active" data-role="" onclick="setMapFilter('')">Tous</button>
+          <button class="map-filter-btn" data-role="producteur" onclick="setMapFilter('producteur')">Producteurs</button>
+          <button class="map-filter-btn" data-role="acheteur" onclick="setMapFilter('acheteur')">Acheteurs</button>
+        </div>
+        <div id="admin-map" style="height:380px;border-radius:12px;overflow:hidden;border:1px solid var(--line);margin:12px 0;"></div>
+        <button class="btn btn-ghost small-btn" id="btn-geocoder" onclick="geocoderExistants()">Localiser les comptes déjà inscrits (sans coordonnées)</button>
+        <span id="geocoder-msg" class="hint" style="display:inline-block;margin-left:10px;"></span>
       </div>
 
       <div class="section-title">Revenus par pays</div>
@@ -1184,6 +1199,7 @@ async function renderAdmin() {
 
   loadCatPrices();
   loadRevenusPays();
+  loadCarteComptes();
   loadAgents();
 }
 
@@ -1199,6 +1215,62 @@ async function loadRevenusPays() {
         </tr>`).join('')
       : '<tr><td colspan="3" class="hint">Aucun déblocage payé pour l\'instant.</td></tr>';
   } catch (e) { /* silencieux */ }
+}
+
+let adminMap = null;
+let mapMarkersLayer = null;
+let mapFilterRole = '';
+
+function setMapFilter(role) {
+  mapFilterRole = role;
+  document.querySelectorAll('.map-filter-btn').forEach(b => b.classList.toggle('active', b.dataset.role === role));
+  loadCarteComptes();
+}
+
+async function loadCarteComptes() {
+  try {
+    const qs = mapFilterRole ? '?role=' + mapFilterRole : '';
+    const comptes = await apiFetch('/api/admin/carte-comptes' + qs, { token: adminToken });
+    drawMap(comptes);
+  } catch (e) { /* silencieux */ }
+}
+
+function drawMap(comptes) {
+  if (!adminMap) {
+    adminMap = L.map('admin-map').setView([9, -3], 5);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap contributors', maxZoom: 18
+    }).addTo(adminMap);
+    mapMarkersLayer = L.layerGroup().addTo(adminMap);
+  }
+  mapMarkersLayer.clearLayers();
+  comptes.forEach(c => {
+    const color = c.role === 'producteur' ? '#1E5A45' : '#E4A73B';
+    L.circleMarker([c.latitude, c.longitude], {
+      radius: 7, fillColor: color, color: '#fff', weight: 1.5, fillOpacity: 0.9
+    }).addTo(mapMarkersLayer).bindPopup(
+      `<strong>${c.nom}</strong><br>${c.role === 'producteur' ? 'Producteur' : 'Acheteur'}<br>${c.ville || ''}${c.pays ? ', ' + c.pays : ''}`
+    );
+  });
+  if (comptes.length) {
+    const bounds = L.latLngBounds(comptes.map(c => [c.latitude, c.longitude]));
+    adminMap.fitBounds(bounds, { padding: [30, 30], maxZoom: 8 });
+  }
+}
+
+async function geocoderExistants() {
+  const btn = document.getElementById('btn-geocoder');
+  const msg = document.getElementById('geocoder-msg');
+  btn.disabled = true;
+  msg.textContent = "Localisation en cours (peut prendre 10-15 secondes)...";
+  try {
+    const res = await apiFetch('/api/admin/geocoder-existants', { method: 'POST', token: adminToken });
+    msg.textContent = res.message + (res.restants_a_verifier > 0 ? " — reclique si besoin pour continuer." : "");
+    loadCarteComptes();
+  } catch (e) {
+    msg.textContent = e.message;
+  }
+  btn.disabled = false;
 }
 
 async function createAgent() {
