@@ -12,6 +12,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,500;0,700;1,500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
 <style>
 :root{
   --forest:#1E5A45;
@@ -224,7 +225,7 @@ footer{text-align:center;padding:30px 0 10px;font-size:12px;opacity:0.55;}
       <button class="tab-btn active" data-view="accueil">Accueil</button>
       <button class="tab-btn" data-view="compte">Mon compte</button>
       <button class="tab-btn" data-view="producteur">Espace producteur</button>
-      <button class="tab-btn" data-view="acheteur">Espace acheteur</button>
+      <button class="tab-btn" data-view="acheteur">Marketplace</button>
       <button class="tab-btn" data-view="admin">Admin</button>
     </nav>
     <div class="session-box" id="session-box"></div>
@@ -238,10 +239,10 @@ footer{text-align:center;padding:30px 0 10px;font-size:12px;opacity:0.55;}
     <div class="hero">
       <div>
         <h1>Le champ rencontre <em>le marché.</em></h1>
-        <p class="lead">AgriLineShop met en relation directe les producteurs agricoles et les acheteurs. Un producteur publie, un acheteur trouve, et le contact se débloque en un paiement mobile — Wave, MTN Money, Orange Money ou Moov Money.</p>
+        <p class="lead">AgriLineShop met en relation directe les producteurs agricoles et les acheteurs. Un producteur publie, un acheteur parcourt librement le marché et débloque un contact en un paiement mobile — Wave, MTN Money, Orange Money ou Moov Money.</p>
         <div class="cta-row">
           <button class="btn btn-primary" onclick="showView('compte');preRole('producteur');setAuthMode('register')">Je suis producteur</button>
-          <button class="btn btn-gold" onclick="showView('compte');preRole('acheteur');setAuthMode('register')">Je suis acheteur</button>
+          <button class="btn btn-gold" onclick="showView('acheteur')">Voir les produits (sans compte)</button>
         </div>
         <div class="badges">
           <span class="badge">▶ Disponible sur Play Store*</span>
@@ -262,7 +263,7 @@ footer{text-align:center;padding:30px 0 10px;font-size:12px;opacity:0.55;}
     </div>
 
     <div class="stats-strip cols-3">
-      <div class="stat-card"><div class="n" id="s-comptes-acheteurs">0</div><div class="l">Comptes acheteurs</div></div>
+      <div class="stat-card"><div class="n" id="s-comptes-acheteurs">0</div><div class="l">Achats effectués</div></div>
       <div class="stat-card"><div class="n" id="s-comptes-producteurs">0</div><div class="l">Comptes producteurs</div></div>
       <div class="stat-card"><div class="n" id="s-visites">0</div><div class="l">Visites sur le site</div></div>
     </div>
@@ -278,13 +279,10 @@ footer{text-align:center;padding:30px 0 10px;font-size:12px;opacity:0.55;}
   <!-- COMPTE : connexion + inscription -->
   <section class="view" id="v-compte">
     <div class="panel" style="max-width:520px;margin:20px auto;">
+      <h2 style="margin-bottom:14px;">Espace producteur</h2>
       <div class="role-toggle">
         <button id="mode-login" class="active" onclick="setAuthMode('login')">Se connecter</button>
         <button id="mode-register" onclick="setAuthMode('register')">Créer un compte</button>
-      </div>
-      <div class="role-toggle">
-        <button id="role-prod" class="active" onclick="preRole('producteur')">Producteur</button>
-        <button id="role-ach" onclick="preRole('acheteur')">Acheteur</button>
       </div>
 
       <div id="login-block">
@@ -406,15 +404,10 @@ footer{text-align:center;padding:30px 0 10px;font-size:12px;opacity:0.55;}
 
   <!-- ACHETEUR -->
   <section class="view" id="v-acheteur">
-    <div id="ach-locked" class="panel locked-box" style="display:none;">
-      <h2>Espace acheteur</h2>
-      <p>Connectez-vous avec votre compte acheteur pour parcourir le marché et débloquer des contacts.</p>
-      <button class="btn btn-gold" onclick="showView('compte');preRole('acheteur');setAuthMode('login')">Se connecter en tant qu'acheteur</button>
-    </div>
-
-    <div id="ach-content" style="display:none;">
+    <div id="ach-content">
       <div class="panel">
-        <h2>Produits disponibles</h2>
+        <h2>Marketplace — Produits disponibles</h2>
+        <p class="hint" style="margin-top:-8px;">Parcourez librement, aucun compte n'est nécessaire. Un paiement mobile money est demandé uniquement pour débloquer le contact d'un vendeur.</p>
         <div class="search-row">
           <input id="search-q" placeholder="🔍 Rechercher un produit (ex : tomates, manioc...)" oninput="debouncedLoadMarket()">
           <select id="search-cat" onchange="loadMarket()">
@@ -449,7 +442,7 @@ footer{text-align:center;padding:30px 0 10px;font-size:12px;opacity:0.55;}
         <button class="btn btn-ghost small-btn" onclick="adminLogout()">Déconnexion</button>
       </div>
       <div class="stats-strip cols-5">
-        <div class="stat-card"><div class="n" id="ad-s-acheteurs">0</div><div class="l">Comptes acheteurs</div></div>
+        <div class="stat-card"><div class="n" id="ad-s-acheteurs">0</div><div class="l">Achats effectués</div></div>
         <div class="stat-card"><div class="n" id="ad-s-producteurs">0</div><div class="l">Comptes producteurs</div></div>
         <div class="stat-card"><div class="n" id="ad-s-visites">0</div><div class="l">Visites</div></div>
         <div class="stat-card"><div class="n" id="ad-s-deblocages">0</div><div class="l">Déblocages</div></div>
@@ -464,6 +457,9 @@ footer{text-align:center;padding:30px 0 10px;font-size:12px;opacity:0.55;}
           <button class="map-filter-btn" data-role="producteur" onclick="setMapFilter('producteur')">Producteurs</button>
           <button class="map-filter-btn" data-role="acheteur" onclick="setMapFilter('acheteur')">Acheteurs</button>
         </div>
+        <p class="hint" style="margin-bottom:6px;">Filtrer les producteurs par culture (coche une ou plusieurs, laisse tout décoché pour voir toutes les cultures) :</p>
+        <div id="map-cat-checks" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px;"></div>
+        <button class="btn btn-ghost small-btn" onclick="applyMapCatFilter()" style="margin-bottom:10px;">Appliquer ce filtre de culture</button>
         <div id="admin-map" style="height:380px;border-radius:12px;overflow:hidden;border:1px solid var(--line);margin:12px 0;"></div>
         <button class="btn btn-ghost small-btn" id="btn-geocoder" onclick="geocoderExistants()">Localiser les comptes déjà inscrits (sans coordonnées)</button>
         <span id="geocoder-msg" class="hint" style="display:inline-block;margin-left:10px;"></span>
@@ -526,13 +522,41 @@ footer{text-align:center;padding:30px 0 10px;font-size:12px;opacity:0.55;}
         </div>
       </div>
 
+      <div class="section-title">Télécharger les données</div>
+      <div class="panel">
+        <p class="hint" style="margin-top:-6px;">Chaque bouton télécharge un fichier (format tableur, ouvrable dans Excel) avec toutes les données actuelles.</p>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+          <button class="btn btn-ghost small-btn" onclick="downloadCsv('/api/admin/export/utilisateurs','utilisateurs.csv')">⬇ Comptes (producteurs/acheteurs)</button>
+          <button class="btn btn-ghost small-btn" onclick="downloadCsv('/api/admin/export/produits','produits.csv')">⬇ Produits publiés</button>
+          <button class="btn btn-ghost small-btn" onclick="downloadCsv('/api/admin/export/deblocages','deblocages.csv')">⬇ Déblocages / paiements</button>
+          <button class="btn btn-ghost small-btn" onclick="downloadCsv('/api/admin/export/agents','agents.csv')">⬇ Agents de terrain</button>
+        </div>
+        <span id="download-msg" class="hint" style="display:inline-block;margin-top:8px;"></span>
+      </div>
+
+      <div class="section-title">Tableau de bord — graphiques</div>
+      <div class="panel">
+        <h3 style="font-size:15px;margin:0 0 10px;">Revenus des 30 derniers jours</h3>
+        <canvas id="chart-quotidien" height="90"></canvas>
+        <div class="grid2" style="margin-top:26px;">
+          <div>
+            <h3 style="font-size:15px;margin:0 0 10px;">Revenus par culture</h3>
+            <canvas id="chart-categories" height="140"></canvas>
+          </div>
+          <div>
+            <h3 style="font-size:15px;margin:0 0 10px;">Comptes par pays</h3>
+            <canvas id="chart-pays" height="140"></canvas>
+          </div>
+        </div>
+      </div>
+
       <div class="section-title">Comptes créés</div>
       <div class="panel">
         <input id="admin-search-comptes" placeholder="🔍 Rechercher un compte (nom, identifiant, ville...)" style="width:100%;padding:10px 12px;border-radius:8px;border:1.5px solid var(--line);background:var(--paper);font-size:14px;margin-bottom:12px;" oninput="renderComptesTable()">
         <p class="hint" style="margin-top:-6px;">Les mots de passe sont chiffrés et protégés — même l'administrateur ne peut pas les consulter en clair, c'est une bonne pratique de sécurité.</p>
         <div class="table-wrap">
           <table>
-            <thead><tr><th>Nom</th><th>Rôle</th><th>Identifiant</th><th>Ville</th><th>Statut</th></tr></thead>
+            <thead><tr><th>Nom</th><th>Rôle</th><th>Identifiant</th><th>Téléphone</th><th>Ville</th><th>Statut</th></tr></thead>
             <tbody id="admin-comptes"></tbody>
           </table>
         </div>
@@ -688,10 +712,8 @@ function showView(id) {
 document.querySelectorAll('.tab-btn').forEach(b => b.addEventListener('click', () => showView(b.dataset.view)));
 
 function preRole(role) {
-  currentSignRole = role;
-  document.getElementById('role-prod').classList.toggle('active', role === 'producteur');
-  document.getElementById('role-ach').classList.toggle('active', role === 'acheteur');
-  document.getElementById('field-culture').style.display = role === 'producteur' ? 'block' : 'none';
+  currentSignRole = 'producteur';
+  document.getElementById('field-culture').style.display = 'block';
 }
 preRole('producteur');
 
@@ -981,13 +1003,10 @@ async function deleteProduct(id) {
 }
 
 /* --- Acheteur : marché + déblocage (protégé par connexion) --- */
-let guestMode = false;
+let guestMode = true;
 
 function renderAcheteurSpace() {
-  const locked = session.role !== 'acheteur' && !guestMode;
-  document.getElementById('ach-locked').style.display = locked ? 'block' : 'none';
-  document.getElementById('ach-content').style.display = locked ? 'none' : 'block';
-  if (!locked) loadMarket();
+  loadMarket();
 }
 
 async function loadMarket() {
@@ -1062,11 +1081,6 @@ async function setRating(producteurId, note) {
 }
 
 function openModal(produitId) {
-  if (session.role !== 'acheteur' && !guestMode) {
-    toast("Connectez-vous en tant qu'acheteur pour débloquer un contact.");
-    showView('compte'); preRole('acheteur'); setAuthMode('login');
-    return;
-  }
   payTargetId = produitId;
   chosenMethod = null;
   const produit = marketProducts.find(p => p.id === produitId);
@@ -1074,8 +1088,7 @@ function openModal(produitId) {
   document.getElementById('modal-amount').textContent = montant.toLocaleString('fr-FR') + " FCFA";
   document.querySelectorAll('.pay-methods button').forEach(b => b.classList.remove('sel'));
   document.getElementById('pay-num').value = '';
-  const needsGuestFields = session.role !== 'acheteur' && guestMode;
-  document.getElementById('modal-guest-fields').style.display = needsGuestFields ? 'block' : 'none';
+  document.getElementById('modal-guest-fields').style.display = 'block';
   document.getElementById('pay-modal').classList.add('open');
 }
 function closeModal() { document.getElementById('pay-modal').classList.remove('open'); }
@@ -1088,34 +1101,16 @@ async function confirmPay() {
   if (!chosenMethod) { toast("Choisissez un moyen de paiement."); return; }
   const numero = document.getElementById('pay-num').value.trim();
   if (!numero) { toast("Renseignez le numéro de paiement."); return; }
-
-  const estInvite = session.role !== 'acheteur' && guestMode;
-  if (estInvite && !document.getElementById('guest-nom').value.trim()) {
-    toast("Indiquez votre nom pour continuer.");
-    return;
-  }
+  const nomAcheteur = document.getElementById('guest-nom').value.trim();
+  if (!nomAcheteur) { toast("Indiquez votre nom pour continuer."); return; }
 
   try {
     toast("Paiement en cours...");
-    let deb, token;
-    if (estInvite) {
-      deb = await apiFetch('/api/produits/' + payTargetId + '/debloquer-invite', {
-        method: 'POST',
-        body: {
-          nom: document.getElementById('guest-nom').value.trim(),
-          telephone: numero,
-          methode: chosenMethod, numero_paiement: numero
-        }
-      });
-      token = deb.token;
-      session = { role: 'acheteur', account: { nom: document.getElementById('guest-nom').value.trim() }, token };
-      renderSessionBox();
-    } else {
-      deb = await apiFetch('/api/produits/' + payTargetId + '/debloquer', {
-        method: 'POST', token: session.token, body: { methode: chosenMethod, numero_paiement: numero }
-      });
-      token = session.token;
-    }
+    const deb = await apiFetch('/api/produits/' + payTargetId + '/debloquer-invite', {
+      method: 'POST',
+      body: { nom: nomAcheteur, telephone: numero, methode: chosenMethod, numero_paiement: numero }
+    });
+    const token = deb.token;
     // Simule la confirmation instantanée de l'opérateur mobile money (à remplacer
     // par leur vrai webhook une fois le contrat marchand signé).
     await apiFetch('/api/paiements/webhook', { method: 'POST', body: { reference: deb.reference, statut: 'paye' } });
@@ -1199,8 +1194,10 @@ async function renderAdmin() {
 
   loadCatPrices();
   loadRevenusPays();
+  renderMapCatChecks();
   loadCarteComptes();
   loadAgents();
+  loadDashboardCharts();
 }
 
 async function loadRevenusPays() {
@@ -1227,9 +1224,26 @@ function setMapFilter(role) {
   loadCarteComptes();
 }
 
+function renderMapCatChecks() {
+  const box = document.getElementById('map-cat-checks');
+  if (!box) return;
+  box.innerHTML = TOUTES_CATEGORIES.map(cat => `
+    <label style="display:flex;align-items:center;gap:5px;background:var(--sky);border:1px solid var(--line);border-radius:8px;padding:6px 10px;font-size:13px;cursor:pointer;">
+      <input type="checkbox" class="map-cat-check" value="${cat}"> ${cat}
+    </label>`).join('');
+}
+
+function applyMapCatFilter() {
+  loadCarteComptes();
+}
+
 async function loadCarteComptes() {
   try {
-    const qs = mapFilterRole ? '?role=' + mapFilterRole : '';
+    const params = new URLSearchParams();
+    if (mapFilterRole) params.set('role', mapFilterRole);
+    const cochees = Array.from(document.querySelectorAll('.map-cat-check:checked')).map(c => c.value);
+    if (cochees.length) params.set('categories', cochees.join(','));
+    const qs = params.toString() ? '?' + params.toString() : '';
     const comptes = await apiFetch('/api/admin/carte-comptes' + qs, { token: adminToken });
     drawMap(comptes);
   } catch (e) { /* silencieux */ }
@@ -1318,6 +1332,74 @@ async function payerAgent(id) {
   }
 }
 
+async function downloadCsv(path, filename) {
+  const msg = document.getElementById('download-msg');
+  msg.textContent = "Préparation du fichier...";
+  try {
+    const res = await fetch(API_BASE + path, { headers: { 'Authorization': 'Bearer ' + adminToken } });
+    if (!res.ok) throw new Error("Le téléchargement a échoué.");
+    const blob = await res.blob();
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = filename;
+    document.body.appendChild(a); a.click(); a.remove();
+    window.URL.revokeObjectURL(url);
+    msg.textContent = filename + " téléchargé.";
+    setTimeout(() => msg.textContent = '', 2500);
+  } catch (e) {
+    msg.textContent = e.message;
+  }
+}
+
+let chartQuotidien = null, chartCategories = null, chartPays = null;
+
+async function loadDashboardCharts() {
+  try {
+    const quot = await apiFetch('/api/admin/stats-quotidiennes', { token: adminToken });
+    const ctx1 = document.getElementById('chart-quotidien');
+    if (chartQuotidien) chartQuotidien.destroy();
+    chartQuotidien = new Chart(ctx1, {
+      type: 'line',
+      data: {
+        labels: quot.map(r => r.jour.slice(5)),
+        datasets: [{ label: 'Revenu (FCFA)', data: quot.map(r => r.revenu), borderColor: '#1E5A45', backgroundColor: 'rgba(30,90,69,0.12)', fill: true, tension: 0.25 }]
+      },
+      options: { responsive: true, plugins: { legend: { display: false } } }
+    });
+  } catch (e) { /* silencieux */ }
+
+  try {
+    const cats = await apiFetch('/api/admin/revenus-par-categorie', { token: adminToken });
+    const ctx2 = document.getElementById('chart-categories');
+    if (chartCategories) chartCategories.destroy();
+    chartCategories = new Chart(ctx2, {
+      type: 'bar',
+      data: {
+        labels: cats.map(r => r.categorie),
+        datasets: [{ label: 'Revenu (FCFA)', data: cats.map(r => r.revenu), backgroundColor: '#E4A73B' }]
+      },
+      options: { responsive: true, plugins: { legend: { display: false } } }
+    });
+  } catch (e) { /* silencieux */ }
+
+  try {
+    const pays = await apiFetch('/api/admin/comptes-par-pays', { token: adminToken });
+    const ctx3 = document.getElementById('chart-pays');
+    if (chartPays) chartPays.destroy();
+    chartPays = new Chart(ctx3, {
+      type: 'bar',
+      data: {
+        labels: pays.map(r => r.pays),
+        datasets: [
+          { label: 'Producteurs', data: pays.map(r => r.producteurs), backgroundColor: '#1E5A45' },
+          { label: 'Acheteurs', data: pays.map(r => r.acheteurs), backgroundColor: '#E4A73B' }
+        ]
+      },
+      options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+    });
+  } catch (e) { /* silencieux */ }
+}
+
 function renderProducteursTable() {
   const q = document.getElementById('admin-search-producteurs').value.trim().toLowerCase();
   const filtered = adminProducteursCache.filter(p =>
@@ -1343,9 +1425,10 @@ function renderComptesTable() {
       <td>${c.nom}</td>
       <td>${c.role === 'producteur' ? 'Producteur' : 'Acheteur'}</td>
       <td class="mono">${c.identifiant}</td>
+      <td>${c.telephone || '—'}</td>
       <td>${c.ville || '—'}</td>
       <td><span class="pill ${c.statut === 'actif' ? 'ok' : 'susp'}">${c.statut === 'actif' ? 'Actif' : 'Suspendu'}</span></td>
-    </tr>`).join('') || '<tr><td colspan="5" class="hint">Aucun résultat.</td></tr>';
+    </tr>`).join('') || '<tr><td colspan="6" class="hint">Aucun résultat.</td></tr>';
 }
 
 let TOUTES_CATEGORIES = ['Cacao', 'Café', 'Coton', 'Anacarde', 'Hévéa', 'Légumes', 'Fruits', 'Céréales', 'Tubercules', 'Élevage'];
@@ -1397,6 +1480,7 @@ function renderCatChecks() {
       </label>
       <button type="button" onclick="removeCatOption('${cat.replace(/'/g, "\\'")}')" title="Retirer cette culture de la liste" style="background:none;border:none;color:var(--hibiscus);font-weight:700;cursor:pointer;padding:0 2px;font-size:15px;">×</button>
     </span>`).join('');
+  renderMapCatChecks();
 }
 
 function renderCatPricesTable() {
