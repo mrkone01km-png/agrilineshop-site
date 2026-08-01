@@ -524,12 +524,33 @@ footer{text-align:center;padding:30px 0 10px;font-size:12px;opacity:0.55;}
 
       <div class="section-title">Télécharger les données</div>
       <div class="panel">
-        <p class="hint" style="margin-top:-6px;">Chaque bouton télécharge un fichier (format tableur, ouvrable dans Excel) avec toutes les données actuelles.</p>
-        <div style="display:flex;gap:10px;flex-wrap:wrap;">
-          <button class="btn btn-ghost small-btn" onclick="downloadCsv('/api/admin/export/utilisateurs','utilisateurs.csv')">⬇ Comptes (producteurs/acheteurs)</button>
-          <button class="btn btn-ghost small-btn" onclick="downloadCsv('/api/admin/export/produits','produits.csv')">⬇ Produits publiés</button>
-          <button class="btn btn-ghost small-btn" onclick="downloadCsv('/api/admin/export/deblocages','deblocages.csv')">⬇ Déblocages / paiements</button>
-          <button class="btn btn-ghost small-btn" onclick="downloadCsv('/api/admin/export/agents','agents.csv')">⬇ Agents de terrain</button>
+        <div style="background:var(--sky);border:1.5px solid var(--forest);border-radius:10px;padding:16px;margin-bottom:16px;">
+          <h3 style="margin:0 0 6px;font-size:15.5px;color:var(--forest-dark);">📊 Export complet pour analyse</h3>
+          <p class="hint" style="margin:0 0 10px;">Un seul fichier Excel avec 4 feuilles reliées entre elles (Transactions, Producteurs, Produits, Agents). La feuille "Transactions" a une ligne par vente avec toutes les infos à plat — c'est elle qu'il faut utiliser pour un Tableau croisé dynamique dans Excel (menu Insertion), pour croiser librement acheteurs, producteurs, cultures, pays, dates ou moyens de paiement, dans n'importe quel sens.</p>
+          <button class="btn btn-gold" onclick="downloadCsv('/api/admin/export/analyse-complete','agrilineshop-analyse-complete.xlsx')">⬇ Télécharger le classeur d'analyse complet (Excel)</button>
+        </div>
+        <p class="hint" style="margin-top:-6px;">Ou, fichier par fichier, plus simple mais moins riche pour croiser :</p>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+            <span style="min-width:190px;font-size:13.5px;font-weight:600;">Comptes (producteurs/acheteurs)</span>
+            <button class="btn btn-ghost small-btn" onclick="downloadCsv('/api/admin/export/utilisateurs?format=csv','utilisateurs.csv')">⬇ CSV</button>
+            <button class="btn btn-ghost small-btn" onclick="downloadCsv('/api/admin/export/utilisateurs?format=xlsx','utilisateurs.xlsx')">⬇ Excel</button>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+            <span style="min-width:190px;font-size:13.5px;font-weight:600;">Produits publiés</span>
+            <button class="btn btn-ghost small-btn" onclick="downloadCsv('/api/admin/export/produits?format=csv','produits.csv')">⬇ CSV</button>
+            <button class="btn btn-ghost small-btn" onclick="downloadCsv('/api/admin/export/produits?format=xlsx','produits.xlsx')">⬇ Excel</button>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+            <span style="min-width:190px;font-size:13.5px;font-weight:600;">Déblocages / paiements</span>
+            <button class="btn btn-ghost small-btn" onclick="downloadCsv('/api/admin/export/deblocages?format=csv','deblocages.csv')">⬇ CSV</button>
+            <button class="btn btn-ghost small-btn" onclick="downloadCsv('/api/admin/export/deblocages?format=xlsx','deblocages.xlsx')">⬇ Excel</button>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+            <span style="min-width:190px;font-size:13.5px;font-weight:600;">Agents de terrain</span>
+            <button class="btn btn-ghost small-btn" onclick="downloadCsv('/api/admin/export/agents?format=csv','agents.csv')">⬇ CSV</button>
+            <button class="btn btn-ghost small-btn" onclick="downloadCsv('/api/admin/export/agents?format=xlsx','agents.xlsx')">⬇ Excel</button>
+          </div>
         </div>
         <span id="download-msg" class="hint" style="display:inline-block;margin-top:8px;"></span>
       </div>
