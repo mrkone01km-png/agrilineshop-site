@@ -425,7 +425,7 @@ footer{text-align:center;padding:30px 0 10px;font-size:12px;opacity:0.55;}
   <section class="view" id="v-admin">
     <div id="admin-login-box" class="admin-login panel">
       <h2>Connexion administrateur</h2>
-      <div class="field"><label>Identifiant</label><input id="ad-id" placeholder="Identifiant"></div>
+      <div class="field"><label>Email</label><input id="ad-id" placeholder="votre@email.com"></div>
       <div class="field">
         <label>Mot de passe</label>
         <div class="pwd-wrap">
@@ -611,7 +611,7 @@ footer{text-align:center;padding:30px 0 10px;font-size:12px;opacity:0.55;}
       <div class="section-title">Sécurité — modifier mes identifiants</div>
       <div class="panel">
         <div class="grid2">
-          <div class="field"><label>Nouvel identifiant</label><input id="new-id" placeholder="Nouvel identifiant"></div>
+          <div class="field"><label>Nouvel email</label><input id="new-id" placeholder="votre@email.com"></div>
           <div class="field">
             <label>Nouveau mot de passe</label>
             <div class="pwd-wrap">
@@ -626,7 +626,126 @@ footer{text-align:center;padding:30px 0 10px;font-size:12px;opacity:0.55;}
     </div>
   </section>
 
-  <footer>AgriLineShop — mise en relation producteurs agricoles et acheteurs.</footer>
+  <!-- MENTIONS LÉGALES -->
+  <section class="view" id="v-mentions">
+    <div class="panel" style="max-width:680px;margin:20px auto;">
+      <h2>Mentions légales</h2>
+      <p style="font-size:14px;line-height:1.7;">
+        <strong>Éditeur du site</strong><br>
+        AgriLineShop est un service édité à titre indépendant. Pour toute question sur l'identité de l'éditeur,
+        contactez : <strong>kmlineshop@gmail.com</strong>.
+      </p>
+      <p style="font-size:14px;line-height:1.7;">
+        <strong>Hébergement</strong><br>
+        Le site est hébergé par GitHub Pages (GitHub Inc.). Le serveur applicatif est hébergé par Render
+        (Render Services Inc.). La base de données est hébergée par Neon (Neon Inc.).
+      </p>
+      <p style="font-size:14px;line-height:1.7;">
+        <strong>Objet du site</strong><br>
+        AgriLineShop est une plateforme de mise en relation entre producteurs agricoles et acheteurs. Elle
+        n'intervient pas dans la vente elle-même, le transport, la livraison ou la qualité des produits échangés.
+      </p>
+    </div>
+  </section>
+
+  <!-- CONDITIONS D'UTILISATION -->
+  <section class="view" id="v-cgu">
+    <div class="panel" style="max-width:680px;margin:20px auto;">
+      <h2>Conditions d'utilisation</h2>
+      <p style="font-size:14px;line-height:1.7;">
+        <strong>1. Le service</strong><br>
+        AgriLineShop permet à un producteur agricole de créer un compte et de publier des produits (avec au
+        moins 2 photos), et à un acheteur de consulter librement ces produits, sans compte, puis de débloquer
+        le contact d'un producteur moyennant un paiement mobile money (Wave, MTN Money, Orange Money ou Moov
+        Money). Le montant du déblocage peut varier selon la catégorie de produit.
+      </p>
+      <p style="font-size:14px;line-height:1.7;">
+        <strong>2. Rôle d'AgriLineShop</strong><br>
+        AgriLineShop met en relation les parties mais n'est ni vendeur, ni acheteur, ni transporteur. La
+        négociation, la qualité, la quantité livrée, le prix final et le paiement de la marchandise se règlent
+        directement entre le producteur et l'acheteur, en dehors du site. AgriLineShop ne garantit pas la
+        véracité des annonces publiées par les producteurs.
+      </p>
+      <p style="font-size:14px;line-height:1.7;">
+        <strong>3. Compte producteur</strong><br>
+        Le producteur est responsable de l'exactitude des informations et photos qu'il publie. Un compte peut
+        être suspendu par l'administrateur en cas de comportement malhonnête ou de signalement fondé.
+      </p>
+      <p style="font-size:14px;line-height:1.7;">
+        <strong>4. Paiement du déblocage de contact</strong><br>
+        Le montant payé par l'acheteur pour débloquer un contact correspond uniquement à l'accès aux
+        coordonnées du producteur pendant 5 minutes, et ne constitue en aucun cas le paiement de la
+        marchandise elle-même.
+      </p>
+      <p style="font-size:14px;line-height:1.7;">
+        <strong>5. Agents de terrain</strong><br>
+        Un agent peut inscrire des producteurs sur le terrain avec un code qui lui est propre. Il perçoit alors
+        une commission sur les ventes réalisées par les producteurs qu'il a recrutés, selon les modalités
+        définies par l'administrateur du site.
+      </p>
+      <p style="font-size:14px;line-height:1.7;">
+        <strong>6. Modification</strong><br>
+        Ces conditions peuvent évoluer. Pour toute question, contactez <strong>kmlineshop@gmail.com</strong>.
+      </p>
+    </div>
+  </section>
+
+  <!-- CONFIDENTIALITÉ -->
+  <section class="view" id="v-confidentialite">
+    <div class="panel" style="max-width:680px;margin:20px auto;">
+      <h2>Confidentialité</h2>
+      <p style="font-size:14px;line-height:1.7;">
+        <strong>Données collectées</strong><br>
+        Pour un compte producteur : nom, identifiant, mot de passe (chiffré, jamais stocké en clair), téléphone,
+        pays, ville, type de culture, et les produits publiés (avec leurs photos). Pour un déblocage de contact
+        (acheteur) : nom et numéro de téléphone, uniquement au moment du paiement.
+      </p>
+      <p style="font-size:14px;line-height:1.7;">
+        <strong>Localisation</strong><br>
+        La ville renseignée par un producteur est convertie automatiquement en coordonnées approximatives, pour
+        affichage sur une carte réservée à l'administrateur du site. Aucune localisation en temps réel n'est
+        collectée.
+      </p>
+      <p style="font-size:14px;line-height:1.7;">
+        <strong>Utilisation des données</strong><br>
+        Ces données servent uniquement au fonctionnement du site : mise en relation, statistiques internes,
+        gestion des paiements de déblocage et des commissions des agents. Elles ne sont ni vendues, ni
+        partagées avec des tiers à des fins publicitaires.
+      </p>
+      <p style="font-size:14px;line-height:1.7;">
+        <strong>Conservation et accès</strong><br>
+        Les données sont conservées tant que le compte existe. Pour demander la consultation, la correction ou
+        la suppression de vos données, contactez <strong>kmlineshop@gmail.com</strong>.
+      </p>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section class="view" id="v-contact">
+    <div class="panel" style="max-width:520px;margin:20px auto;">
+      <h2>Contact</h2>
+      <p style="font-size:14px;line-height:1.7;">
+        Pour toute question, réclamation, ou signalement concernant AgriLineShop :
+      </p>
+      <p style="font-size:16px;">
+        📧 <strong>kmlineshop@gmail.com</strong>
+      </p>
+      <p style="font-size:14px;line-height:1.7;opacity:0.8;">
+        Nous répondons dans les meilleurs délais. Pour signaler un producteur malhonnête, merci de préciser le
+        nom du produit et le nom du producteur concerné.
+      </p>
+    </div>
+  </section>
+
+  <footer>
+    AgriLineShop — mise en relation producteurs agricoles et acheteurs.
+    <div style="margin-top:8px;">
+      <a href="#" onclick="showView('mentions');return false;" style="color:inherit;text-decoration:underline;margin:0 8px;">Mentions légales</a>
+      <a href="#" onclick="showView('cgu');return false;" style="color:inherit;text-decoration:underline;margin:0 8px;">Conditions d'utilisation</a>
+      <a href="#" onclick="showView('confidentialite');return false;" style="color:inherit;text-decoration:underline;margin:0 8px;">Confidentialité</a>
+      <a href="#" onclick="showView('contact');return false;" style="color:inherit;text-decoration:underline;margin:0 8px;">Contact</a>
+    </div>
+  </footer>
 </div>
 
 <div class="modal-bg" id="pay-modal">
@@ -1602,6 +1721,7 @@ async function updateCreds() {
   const npwd = document.getElementById('new-pwd').value;
   const msg = document.getElementById('cred-msg');
   if (!nid || !npwd) { msg.textContent = "Renseignez les deux champs."; return; }
+  if (!nid.includes('@') || !nid.includes('.')) { msg.textContent = "Merci d'utiliser une adresse email valide."; return; }
   try {
     await apiFetch('/api/admin/identifiants', {
       method: 'PUT', token: adminToken,
