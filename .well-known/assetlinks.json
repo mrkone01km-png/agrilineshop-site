@@ -1,0 +1,8 @@
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "io.github.mrkone01km_png.twa",
+        "sha256_cert_fingerprints": ["79:93:52:61:28:B4:E6:1F:D1:97:C0:8B:4F:0F:E5:0C:BC:4C:D5:02:4E:D1:0B:51:2C:21:EE:2A:6D:D6:59:80"]
+      }
+    }]
